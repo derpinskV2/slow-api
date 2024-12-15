@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "slow-api"
-version = "0.1.001-dev1"
+version = "0.1.001"
 description = "banger"
 authors = ["derpinskV2 <kderpinski@proton.me>"]
 license = "MIT"
@@ -19,6 +19,11 @@ toml = "^0.10.2"
 urllib3 = "^2.2.3"
 uvicorn = "^0.34.0"
 wheel = "^0.45.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-django = "^4.9.0"
+pytest-xdist = "^3.6.1"
 
 [build-system]
 requires = ["poetry-core"]
