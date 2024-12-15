@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "slow-api"
-version = "0.1.001"
+version = "0.1.002"
 description = "banger"
 authors = ["derpinskV2 <kderpinski@proton.me>"]
 license = "MIT"

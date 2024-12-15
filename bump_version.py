@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 SETTINGS_FILE = Path("djongo/djongo/settings.py")
-PYPROJECT_FILE = Path("django/pyproject.toml")
+PYPROJECT_FILE = Path("djongo/pyproject.toml")
 VERSION_PATTERN = r"^\d+\.\d+\.\d{3}(-dev\d+)?$"
 
 

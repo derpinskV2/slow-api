@@ -7,7 +7,8 @@ environ.Env.read_env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-API_VERSION = "0.1.001"
+# BRO PLEASE
+API_VERSION = "0.1.002"
 
 SECRET_KEY = env("SECRET_KEY")
 
