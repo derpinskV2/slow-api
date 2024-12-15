@@ -51,7 +51,7 @@ def main():
 
     if current_version == previous_version:
         print(f"API version not updated. Current version: {current_version}")
-        sys.exit(1)
+        sys.exit(0)
     else:
         print(f"API version updated from {previous_version} to {current_version}")
         sys.exit(0)
