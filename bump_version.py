@@ -4,7 +4,7 @@ import re
 import subprocess
 from pathlib import Path
 
-SETTINGS_FILE = Path("django/unnamed_webapp/settings.py")
+SETTINGS_FILE = Path("djongo/djongo/settings.py")
 PYPROJECT_FILE = Path("django/pyproject.toml")
 VERSION_PATTERN = r"^\d+\.\d+\.\d{3}(-dev\d+)?$"
 
@@ -94,7 +94,7 @@ def main():
 
         return 0
     except ValueError as e:
-        print(f"Error: {e}")
+        print(f"Kill yourself: {e}")
         return 1
 
 
