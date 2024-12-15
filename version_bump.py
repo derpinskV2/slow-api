@@ -11,7 +11,7 @@ VERSION_PATTERN = r"^\d+\.\d+\.\d+(-dev\d+)?$"
 
 def validate_version(version_string):
     if not re.match(VERSION_PATTERN, version_string):
-        raise ValueError(f"Invalid version format: {version_string}. " f"Expected format: 0.1.90 or 0.1.90-dev1")
+        raise ValueError(f"Invalid version format: {version_string}. " f"Expected format: 0.1.900 or 0.1.900-dev1")
 
 
 def bump_version(version_string):

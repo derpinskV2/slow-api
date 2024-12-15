@@ -1,0 +1,81 @@
+name: Create Branch from Issue
+
+on:
+  issues:
+    types:
+      - opened
+      - reopened
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+
+      - name: Set up Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Debug issue variables
+        run: |
+          echo "Issue Number: ${{ github.event.issue.number }}"
+          echo "Issue Title: ${{ github.event.issue.title }}"
+          echo "Issue Creator: ${{ github.event.issue.user.login }}"
+
+      - name: Generate branch name and create branch
+        id: generate_branch
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PREFIX="SOY"
+          BRANCH_NAME="${ISSUE_NUMBER}-${PREFIX}-$(echo "${ISSUE_TITLE}" | tr ' ' '-' | tr '[:upper:]' '[:lower:]')"
+          echo "Branch name: $BRANCH_NAME"
+
+          # Create and push branch
+          git checkout -b "$BRANCH_NAME"
+          git push "https://${GITHUB_TOKEN}@github.com/derpinskV2/slow-api.git" "$BRANCH_NAME"
+
+          # Export as output for use in later steps
+          echo "::set-output name=branch_name::$BRANCH_NAME"
+
+
+      - name: Assign issue to creator
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_CREATOR: ${{ github.event.issue.user.login }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/derpinskV2/slow-api/issues/$ISSUE_NUMBER/assignees \
+          -d '{"assignees":["'"$ISSUE_CREATOR"'"]}'
+
+      - name: Link issue to project
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PROJECT_ID: ${{ secrets.PROJECT_ID }} # Set this in your repository secrets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -d '{"content_id": "'"${{ github.event.issue.node_id }}"'", "content_type": "Issue"}' \
+          https://api.github.com/projects/columns/$PROJECT_ID/cards
+
+      - name: Link branch to issue
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          BRANCH_NAME: ${{ steps.generate_branch.outputs.branch_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_URL="https://github.com/derpinskV2/slow-api/issues/${ISSUE_NUMBER}"
+          BRANCH_URL="https://github.com/derpinskV2/slow-api/tree/${BRANCH_NAME}"
+          COMMENT_BODY="Branch created: [${BRANCH_NAME}](${BRANCH_URL})"
+          curl -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -d "{\"body\": \"${COMMENT_BODY}\"}" \
+          https://api.github.com/repos/derpinskV2/slow-api/issues/${ISSUE_NUMBER}/comments

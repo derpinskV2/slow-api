@@ -1,68 +1,61 @@
-#!/usr/bin/env python3
-
-import re
-import subprocess
-from pathlib import Path
-
-SETTINGS_FILE = Path("djongo/djongo/settings.py")
-PYPROJECT_FILE = Path("djongo/pyproject.toml")
-VERSION_PATTERN = r"^\d+\.\d+\.\d{3}(-dev\d+)?$"
+import sys
+import toml
+from subprocess import check_output, CalledProcessError
 
 
-def validate_version(version_string):
-    if not re.match(VERSION_PATTERN, version_string):
-        raise ValueError(f"Invalid version format: {version_string}. " f"Expected format: 0.1.903 or 0.1.903-dev1")
+def get_file_content(file_path, revision=None):
+    if revision:
+        try:
+            return check_output(["git", "show", f"{revision}:{file_path}"]).decode("utf-8")
+        except CalledProcessError as e:
+            print(f"Error getting content of {file_path} at {revision}: {e}")
+            return ""
+    else:
+        try:
+            with open(file_path) as f:
+                return f.read()
+        except OSError as e:
+            print(f"Error reading {file_path}: {e}")
+            return ""
 
 
-def get_current_version():
-    with open(PYPROJECT_FILE) as file:
-        for line in file:
-            if line.strip().startswith("version = "):
-                return line.split("=")[1].strip().strip('"')
-
-    raise ValueError("Version not found in pyproject.toml")
-
-
-def get_previous_version():
+def extract_version(content):
     try:
-        result = subprocess.run(
-            ["git", "show", "HEAD:django/pyproject.toml"], capture_output=True, text=True, check=True
-        )
-        for line in result.stdout.splitlines():
-            if line.strip().startswith("version = "):
-                return line.split("=")[1].strip().strip('"')
-    except subprocess.CalledProcessError:
-        return None
-
+        config = toml.loads(content)
+        version = config["tool"]["poetry"]["version"]
+        print(f"Extracted version: {version}")
+        return version
+    except toml.TomlDecodeError as e:
+        print(f"Error decoding TOML: {e}")
+        print(f"Content: {content}")
+    except KeyError as e:
+        print(f"Error accessing version key: {e}")
+        print(f"TOML content: {config}")
     return None
 
 
-def check_api_version():
-    try:
-        current_version = get_current_version()
-        validate_version(current_version)
-
-        previous_version = get_previous_version()
-
-        if previous_version is None:
-            print("Unable to retrieve previous version. This might be the initial commit.")
-            return 0
-
-        if current_version == previous_version:
-            print(f"Warning: API version has not changed. Current version: {current_version}")
-            return 1
-        else:
-            print(f"API version has been updated. Previous: {previous_version}, Current: {current_version}")
-            return 0
-
-    except ValueError as e:
-        print(f"Error: {e}")
-        return 1
-
-
 def main():
-    return check_api_version()
+    file_path = "djongo/pyproject.toml"
+
+    print(f"Checking file: {file_path}")
+
+    current_content = get_file_content(file_path)  # Read current file from disk
+    previous_content = get_file_content(file_path, "HEAD")  # Get last committed version
+
+    current_version = extract_version(current_content)
+    previous_version = extract_version(previous_content)
+
+    if current_version is None:
+        print(f"Error: Couldn't find version in {file_path}")
+        sys.exit(1)
+
+    if current_version == previous_version:
+        print(f"API version not updated. Current version: {current_version}")
+        sys.exit(1)
+    else:
+        print(f"API version updated from {previous_version} to {current_version}")
+        sys.exit(0)
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()
