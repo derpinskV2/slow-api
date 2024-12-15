@@ -1,0 +1,23 @@
+name: Lint
+
+on: [ pull_request ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@main
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pre-commit
+          pre-commit install --install-hooks
+      - name: Run pre-commit
+        run: |
+          pre-commit run --all-files

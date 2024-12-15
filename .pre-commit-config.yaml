@@ -1,0 +1,54 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: pretty-format-json
+        args: [--autofix]
+        exclude: &ex (^react-front|^nextjs/|^migrations/|^static/|^nginx/|^media/|^node_modules/|^__pycache__/|^.pytest_cache/|^\.mypy_cache/|.vscode/|extra_static/|\.git/|\.github/|\.idea/)
+      - id: check-yaml
+        exclude: *ex
+      - id: check-toml
+        exclude: *ex
+      - id: check-json
+        exclude: *ex
+      - id: end-of-file-fixer
+        exclude: *ex
+      - id: trailing-whitespace
+        exclude: *ex
+      - id: check-added-large-files
+        exclude: *ex
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: detect-private-key
+        exclude: ^nginx/
+
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        args: [--config=./api/pyproject.toml]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.17.0
+    hooks:
+      - id: pyupgrade
+        args: [--py312-plus]
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        additional_dependencies:
+          [flake8-django, flake8-bugbear, flake8-simplify]
+        args: [--config=setup.cfg]
+
+  - repo: local
+    hooks:
+      - id: check-api-version
+        name: Check API Version
+        entry: python ./check_api_version.py
+        language: python
+        additional_dependencies: [ toml ]
+        pass_filenames: false
+        always_run: true
