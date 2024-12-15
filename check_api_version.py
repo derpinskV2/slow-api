@@ -35,7 +35,7 @@ def extract_version(content):
 
 
 def main():
-    file_path = "djongo/pyproject.toml"
+    file_path = "api/pyproject.toml"
 
     print(f"Checking file: {file_path}")
 

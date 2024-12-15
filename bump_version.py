@@ -4,8 +4,8 @@ import re
 import subprocess
 from pathlib import Path
 
-SETTINGS_FILE = Path("djongo/djongo/settings.py")
-PYPROJECT_FILE = Path("djongo/pyproject.toml")
+SETTINGS_FILE = Path("api/djongo/settings.py")
+PYPROJECT_FILE = Path("api/pyproject.toml")
 VERSION_PATTERN = r"^\d+\.\d+\.\d{3}(-dev\d+)?$"
 
 

@@ -27,7 +27,7 @@ repos:
     rev: 24.10.0
     hooks:
       - id: black
-        args: [--config=./djongo/pyproject.toml]
+        args: [--config=./api/pyproject.toml]
 
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.17.0
